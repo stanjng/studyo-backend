@@ -47,9 +47,10 @@ router.get('/questions', requireToken, (req, res, next) => {
 })
 
 // SHOW
-router.get('topics/:id/questions/:qid', requireToken, (req, res, next) => {
+router.get('/topics/:id/questions/:qid', requireToken, (req, res, next) => {
+  console.log(req.params)
   // req.params.topic.id will be set based on the `:id` in the route
-  Question.findById(req.params.topic.id)
+  Question.findById(req.params.qid)
     .then(handle404)
     // if `findById` is succesful, respond with 200 and "question" JSON
     .then(question => res.status(200).json({ question: question.toObject() }))
@@ -60,7 +61,7 @@ router.get('topics/:id/questions/:qid', requireToken, (req, res, next) => {
 // CREATE
 // POST /questions
 router.post('/topics/:id/questions', requireToken, (req, res, next) => {
-  req.body.question.owner = req.params.id
+  req.body.question.owner = req.user.id
   // 1. define variable to hold our question because the promise chain creates its own scope
   let createdQ
   Question.create(req.body.question)
@@ -91,12 +92,13 @@ router.post('/topics/:id/questions', requireToken, (req, res, next) => {
 
 // UPDATE
 // PATCH /questions/5qa7db6c74d55bc51bdf39793
-router.patch('topics/:id/questions/:qid', requireToken, removeBlanks, (req, res, next) => {
-  Question.findById(req.params.topic.id)
+router.patch('/topics/:id/questions/:qid', requireToken, removeBlanks, (req, res, next) => {
+  Question.findById(req.params.qid)
     .then(handle404)
     .then(question => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current params isn't the topic
+      console.log(question)
       requireOwnership(req, question)
 
       // pass the result of Mongoose's `.update` to the next `.then`
@@ -110,8 +112,8 @@ router.patch('topics/:id/questions/:qid', requireToken, removeBlanks, (req, res,
 
 // DESTROY
 // DELETE /questions/5qa7db6c74d55bc51bdf39793
-router.delete('topics/:id/questions/:qid', requireToken, (req, res, next) => {
-  Question.findById(req.params.topic.id)
+router.delete('/topics/:id/questions/:qid', requireToken, (req, res, next) => {
+  Question.findById(req.params.qid)
     .then(handle404)
     .then(question => {
       // throw an error if current params doesn't own `question`
