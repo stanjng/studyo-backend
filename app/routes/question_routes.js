@@ -5,6 +5,7 @@ const passport = require('passport')
 
 // pull in Mongoose model for questions
 const Question = require('../models/question.js')
+const Topic = require('../models/topic.js')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -59,15 +60,29 @@ router.get('topics/:id/questions/:qid', requireToken, (req, res, next) => {
 // CREATE
 // POST /questions
 router.post('/topics/:id/questions', requireToken, (req, res, next) => {
-  console.log(req.params)
-  // set topic of new question to be current params
-  req.body.question.topic = req.params.id
-
+  req.body.question.owner = req.params.id
+  // 1. define variable to hold our question because the promise chain creates its own scope
+  let createdQ
   Question.create(req.body.question)
-    // respond to succesful `create` with status 201 and JSON of new "question"
+    // 2. respond to succesful `create` with status 201 and JSON of new "question"
     .then(question => {
-      res.status(201).json({ question: question.toObject() })
+      // 3. store the question in our variable
+      createdQ = question
+      // 4. find the topic, return it to continue the chain
+      // Populate questions to show params
+      return Topic.findById(req.params.id).populate('questions')
     })
+    .then(topic => {
+      // 5. push the `createdQ`'s id into the topic we found
+      topic.questions.push(createdQ)
+      // 6. Save the topic! Return it to continue the chain
+      return topic.save()
+    })
+    // respond to succesful `create` with status 201 and JSON of new "question"
+    .then(topic => {
+      res.status(201).json({ topic: topic.toObject() })
+    })
+    .then(console.log(res))
     // if an error occurs, pass it off to our error handler
     // the error handler needs the error message and the `res` object so that it
     // can send an error message back to the client
