@@ -8,6 +8,7 @@ const cors = require('cors')
 const exampleRoutes = require('./app/routes/example_routes')
 const userRoutes = require('./app/routes/user_routes')
 const topicRoutes = require('./app/routes/topic_routes')
+const questionRoutes = require('./app/routes/question_routes')
 
 // require middleware
 const errorHandler = require('./lib/error_handler')
@@ -24,7 +25,7 @@ const auth = require('./lib/auth')
 // define server and client ports
 // used for cors and local port declaration
 const serverDevPort = 4741
-const clientDevPort = 4741
+const clientDevPort = 7165
 
 // establish database connection
 // use new version of URL parser
@@ -67,6 +68,7 @@ app.use(requestLogger)
 app.use(exampleRoutes)
 app.use(userRoutes)
 app.use(topicRoutes)
+app.use(questionRoutes)
 
 // register error handling middleware
 // note that this comes after the route middlewares, because it needs to be

@@ -9,6 +9,11 @@ const topicSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  questions: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Question',
+    required: true
+  }],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
