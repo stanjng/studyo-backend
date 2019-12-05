@@ -98,7 +98,6 @@ router.patch('/topics/:id/questions/:qid', requireToken, removeBlanks, (req, res
     .then(question => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current params isn't the topic
-      console.log(question)
       requireOwnership(req, question)
 
       // pass the result of Mongoose's `.update` to the next `.then`
