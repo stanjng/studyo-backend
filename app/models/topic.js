@@ -14,6 +14,10 @@ const topicSchema = new mongoose.Schema({
     ref: 'Question',
     required: true
   }],
+  uploads: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Upload'
+  }],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

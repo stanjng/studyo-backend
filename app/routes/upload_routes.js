@@ -51,39 +51,34 @@ router.get('/topics/:id/uploads/:qid/', requireToken, (req, res, next) => {
 
 // CREATE
 router.post('/topics/:id/uploads', multerUpload.single('file'), requireToken, (req, res, next) => {
-  console.log('req.file is', req.file)
-  console.log('req.user._id is', req.user._id)
   // 1. define variable to hold our upload because the promise chain creates its own scope
-  console.log('req.body is', req.body)
   let createdUpload
 
   uploadApi(req.file)
     .then(awsResponse => {
-      return Upload.create(
-        req.body.upload,
-        {
-          fileName: awsResponse.key,
-          fileType: req.file.mimetype,
-          description: req.body.description,
-          owner: req.user.id
-        })
+      return Upload.create({
+        fileName: awsResponse.key,
+        fileType: req.file.mimetype,
+        description: req.body.description,
+        owner: req.user.id
+      })
     })
     .then(upload => {
       // 3. store the upload in our variable
       createdUpload = upload
       // 4. find the topic, return it to continue the chain
       // Populate uploads to show params
-      return Topic.findById(req.params.id).populate('upload')
+      return Topic.findById(req.params.id).populate('uploads').populate('questions')
     })
     .then(topic => {
-      // 5. push the `createdQ`'s id into the topic we found
+      // 5. push the `createdUpload`'s id into the topic we found
       topic.uploads.push(createdUpload)
       // 6. Save the topic! Return it to continue the chain
       return topic.save()
     })
-    .then(upload => {
+    .then(topic => {
       res.status(201).json({
-        upload: upload.toObject()
+        topic: topic.toObject()
       })
     })
     .catch(next)
